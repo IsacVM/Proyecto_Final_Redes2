@@ -1,5 +1,9 @@
 #------------------------Programa de la función Sub Bytes----------------------------------------------
 #FUENTE: https://asecuritysite.com/subjects/chapter88
+
+import math
+
+
 #-----------------------------Matriz S-Box-------------------------------------------------------------
 Sbox = [
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
@@ -68,12 +72,12 @@ def bin_to_dec(n):
         return int(n, 2)   
 
 
-def str_split(usr_msg_bin):
+def str_split_dec(usr_msg_bin,n):
     my_str = usr_msg_bin
     my_str_copy = my_str
 
     my_list = []
-    n = 8 #definimos cada cuantos caracteres se va a dividir la cadena
+    n = n #definimos cada cuantos caracteres se va a dividir la cadena
 
     while my_str_copy:
         my_list.append(bin_to_dec(my_str_copy[:n]))
@@ -81,6 +85,19 @@ def str_split(usr_msg_bin):
 
     return my_list
 
+def str_split_bin(usr_msg_bin,n):
+    my_str = usr_msg_bin
+    my_str_copy = my_str
+
+    my_list = []
+    n = n #definimos cada cuantos caracteres se va a dividir la cadena
+
+    while my_str_copy:
+        my_list.append(my_str_copy[:n])
+        my_str_copy = my_str_copy[n:]
+
+    return my_list
+    
 
 def SubBytesHex(dato):
     for i in range(len(dato)):
@@ -101,18 +118,27 @@ if len(usr_msg_bin) < lon_msg:
 #Verificamos si excede los 128 bits 
 if len(usr_msg_bin) > 128:
     print("Son mas de 128 bits de mensaje!")
+    listas_bin=str_split_bin(usr_msg_bin,128)
+    print(listas_bin)
+    for i in range(len(listas_bin)):
+        if len(listas_bin[i])<= 128:
+            listas_bin[i] = listas_bin[i] +"0" * (128 - len(listas_bin[i]))
+            listas_bin[i]=str_split_dec(listas_bin[i],8)
+            SubBytesHex(listas_bin[i])
+            print("Resultado de SubBytes en Hex:", listas_bin[i])
+            #SubBytesInvHex(listas_bin[i])
+            #print("Resultado de InvSubBytes en Hex", listas_bin[i])
 
-
+    print("Listas",listas_bin)
+    
 #Si no excede los 128 bits y son menos, entonces completamos a 128 bits o 16 bytes
-if len(usr_msg_bin) < 128:
-   usr_msg_bin = usr_msg_bin +"0" * (128 - len(usr_msg_bin))
+elif len(usr_msg_bin) <= 128:
+    print("Son menos de 128 bits de mensaje!")
+    usr_msg_bin = usr_msg_bin +"0" * (128 - len(usr_msg_bin))
 
-#print(usr_msg_bin)
-
-datos=str_split(usr_msg_bin) #Aquí obtenemos los valores de posición dentro de la matriz 
-print("Cadena original antes de SubBytes", datos)
-SubBytesHex(datos)
-print("Resultado de SubBytes en Hex:", datos)
-SubBytesInvHex(datos)
-print("Resultado de InvSubBytes en Hex", datos)
-
+    datos=str_split_dec(usr_msg_bin,8)  
+    #print("Cadena original antes de SubBytes", datos)
+    SubBytesHex(datos)
+    print("Resultado de SubBytes en Hex:", datos)
+    #SubBytesInvHex(datos)
+    #print("Resultado de InvSubBytes en Hex", datos)
