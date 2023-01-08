@@ -2,6 +2,7 @@
 #FUENTE: https://asecuritysite.com/subjects/chapter88
 
 from itertools import islice
+import numpy as np
 #-----------------------------Matriz S-Box-------------------------------------------------------------
 Sbox = [
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
@@ -96,15 +97,6 @@ def str_split_bin(usr_msg_bin,n):
     return my_list
     
 
-def SubBytesHex(dato):
-    for i in range(len(dato)):
-        dato[i] = format(Sbox[dato[i]],'x') #convertimos al mismo tiempo a Hexadecimal
-    #return dato 
-    
-def SubBytesInvHex(dato):
-    for i in range(len(dato)):
-        dato[i] = format(SboxInv[int(dato[i],base=16)],'x') #convertimos al mismo tiempo a Hexadecimal
-
 def split_list(lista):
     # list of length in which we have to split
     length_to_split = [4, 4, 4, 4]
@@ -112,40 +104,80 @@ def split_list(lista):
     Inputt = iter(lista)
     Output = [list(islice(Inputt, elem))
             for elem in length_to_split]
-    return Output        
+    return Output 
+
+def find_Sbox(lista):
+    for i in range(len(lista)):
+        lista[i] = format(Sbox[lista[i]],'x') #Buscamo en S #Dec, y convertimos al mismo tiempo a Hexadecimal
+
+def SubBytesHex(usr_msg):
+ 
+    usr_msg_bin = str_to_bin(usr_msg)
+    lon_msg = int(len(usr_msg) * 8)
+    #esto es por si faltan ceros al principio
+    if len(usr_msg_bin) < lon_msg:
+        usr_msg_bin = "0" * (lon_msg - len(usr_msg_bin)) + usr_msg_bin
+        
+    #Verificamos si excede los 128 bits 
+    if len(usr_msg_bin) > 128:
+        #print("Son mas de 128 bits de mensaje!")
+        matriz_subByte=str_split_bin(usr_msg_bin,128)# se agrupa el total de bits del mensaje en grupos de 128
+        #print(matriz_subByte)
+        for i in range(len(matriz_subByte)):
+            if len(matriz_subByte[i])<= 128: 
+                matriz_subByte[i] = matriz_subByte[i] +"0" * (128 - len(matriz_subByte[i]))#completamos con padding de '0' las listas de NO 128 bits
+                matriz_subByte[i]=str_split_dec(matriz_subByte[i],8)#cada lista la dividimos, los 128/8 para tener los 16Bytes y al mismo tiempo pasamos a decimal
+                find_Sbox(matriz_subByte[i]) #Buscamos valor asociados a la posición en decimal de lista dentro de Sbox y obtenemos nuevo equivalente en Hex de la matriz de 'usr_msg' 
+                matriz_subByte[i]=split_list(matriz_subByte[i]) #Cada lista de 16 elementos se dividide en 4, para formar una matriz de 4x4
+                #print("Listas SubBytes en Hex:", matriz_subByte[i])
+            
+        #print("Listas",matriz_subByte)
+    #Si son menos de 128 bits, entonces los completamos
+    elif len(usr_msg_bin) <= 128:
+        #print("Son menos de 128 bits de mensaje!")
+        usr_msg_bin = usr_msg_bin +"0" * (128 - len(usr_msg_bin))#completamos 
+        matriz_subByte=str_split_dec(usr_msg_bin,8)
+        find_Sbox(matriz_subByte)
+        matriz_subByte=split_list(matriz_subByte)
+
+    return np.array(matriz_subByte).transpose()
+
+
+def SubBytesInvHex(matriz_subB):
+    matriz_InvS=matriz_subB
+
+    for i in range(len(matriz_InvS)):
+        for j in range (len( matriz_InvS[i])):    
+            matriz_InvS[i][j] = format(SboxInv[int(matriz_InvS[i][j],base=16)],'x') #convertimos al mismo tiempo a Hexadecimal
+
+    return matriz_InvS
+
+def AddRoundKey(usr_msg):
+    m_inicial=SubBytesInvHex(SubBytesHex(usr_msg))
+    #Procedemos con la matriz de nuestra 'clave'
+    clave='My_Add_Round_Key'
+    clave_bin = str_to_bin(clave)
+    matriz_clave=str_split_dec(clave_bin,8)
+    for i in range(len(matriz_clave)):
+        matriz_clave[i]= format(matriz_clave[i], 'x')
+    
+    matriz_clave=np.array(split_list(matriz_clave)).transpose()
+    print("Matriz Inicial\n",m_inicial)
+    print("Matriz Clave\n",matriz_clave)
+    matriz_ARK=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+    for j in range(len(matriz_ARK)):
+        for k in range(len(matriz_ARK[j])):    
+            matriz_ARK[j][k] =format((int(m_inicial[j][k], 16) ^ int(matriz_clave[j][k], 16)),'x')
+
+    return np.array(matriz_ARK)
+
 
 usr_msg= input("Ingresa mensaje: ")
-usr_msg_bin = str_to_bin(usr_msg)
-lon_msg = int(len(usr_msg) * 8)
-#esto es por si faltan ceros al principio
-if len(usr_msg_bin) < lon_msg:
-   usr_msg_bin = "0" * (lon_msg - len(usr_msg_bin)) + usr_msg_bin
-
-#Verificamos si excede los 128 bits 
-if len(usr_msg_bin) > 128:
-    #print("Son mas de 128 bits de mensaje!")
-    listas_bin=str_split_bin(usr_msg_bin,128)
-    #print(listas_bin)
-    for i in range(len(listas_bin)):
-        if len(listas_bin[i])<= 128:
-            listas_bin[i] = listas_bin[i] +"0" * (128 - len(listas_bin[i]))
-            listas_bin[i]=str_split_dec(listas_bin[i],8)
-            SubBytesHex(listas_bin[i])
-            listas_bin[i]=split_list(listas_bin[i])
-            print("Resultado de SubBytes en Hex:", listas_bin[i])
-            #SubBytesInvHex(listas_bin[i])
-            #print("Resultado de InvSubBytes en Hex", listas_bin[i])
-
-    print("Listas",listas_bin)
-    
-#Si son menos de 128 bits, entonces los completamos
-elif len(usr_msg_bin) <= 128:
-    #print("Son menos de 128 bits de mensaje!")
-    usr_msg_bin = usr_msg_bin +"0" * (128 - len(usr_msg_bin))
-    datos=str_split_dec(usr_msg_bin,8)
-    SubBytesHex(datos)
-    datos=split_list(datos)
-    print("Resultado de SubBytes en Hex:", datos)
-    
-    #SubBytesInvHex(datos)
-    #print("Resultado de InvSubBytes en Hex", datos)
+#--------------AddRoundKey --------------------------------
+m_addRK=AddRoundKey(usr_msg)
+print("Primer Matriz AddRoundKey\n",m_addRK)
+#--------------SubBytes --------------------------------
+matriz_SB=SubBytesHex(usr_msg)
+print("Matriz SubBytes\n",matriz_SB)
+#matriz_InvSB=SubBytesInvHex(matriz_SB)
+#print(matriz_InvSB)
