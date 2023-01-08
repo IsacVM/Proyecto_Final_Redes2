@@ -108,7 +108,7 @@ def split_list(lista):
 
 def find_Sbox(lista):
     for i in range(len(lista)):
-        lista[i] = format(Sbox[lista[i]],'x') #Buscamo en S #Dec, y convertimos al mismo tiempo a Hexadecimal
+        lista[i] = format(Sbox[lista[i]],'x') #Buscamo en Sbox #Dec, y convertimos al mismo tiempo a Hexadecimal
 
 def SubBytesHex(usr_msg):
  
@@ -144,24 +144,26 @@ def SubBytesHex(usr_msg):
 
 
 def SubBytesInvHex(matriz_subB):
-    matriz_InvS=matriz_subB
+    matriz_InvS=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
 
     for i in range(len(matriz_InvS)):
         for j in range (len( matriz_InvS[i])):    
-            matriz_InvS[i][j] = format(SboxInv[int(matriz_InvS[i][j],base=16)],'x') #convertimos al mismo tiempo a Hexadecimal
+            matriz_InvS[i][j] = format(SboxInv[int(matriz_subB[i][j],base=16)],'x') #convertimos al mismo tiempo a Hexadecimal
 
-    return matriz_InvS
+    return np.array(matriz_InvS)
 
-def AddRoundKey(usr_msg):
+def SubBytes_of_4B(columna):
+    #convertimos a decimal:
+    c_SB4=[0,0,0,0]
+    for i in range(len(c_SB4)):
+        c_SB4[i]=int(columna[i], 16)
+    find_Sbox(c_SB4)
+    return c_SB4
+
+
+def AddRoundKey(usr_msg,matriz_clave):
     m_inicial=SubBytesInvHex(SubBytesHex(usr_msg))
-    #Procedemos con la matriz de nuestra 'clave'
-    clave='My_Add_Round_Key'
-    clave_bin = str_to_bin(clave)
-    matriz_clave=str_split_dec(clave_bin,8)
-    for i in range(len(matriz_clave)):
-        matriz_clave[i]= format(matriz_clave[i], 'x')
-    
-    matriz_clave=np.array(split_list(matriz_clave)).transpose()
+   
     print("Matriz Inicial\n",m_inicial)
     print("Matriz Clave\n",matriz_clave)
     matriz_ARK=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
@@ -234,15 +236,28 @@ def shift_rows_inverse(matriz_shift,matriz_n_i):
 
     return np.array(matriz_n_i)
 
+def RotWord(matriz_clave):
+    last_colum=matriz_clave.transpose()[3]
+    return np.roll(last_colum,-1)
+
+
 usr_msg= input("Ingresa mensaje: ")
 #--------------AddRoundKey --------------------------------
-m_addRK=AddRoundKey(usr_msg)
+#Procedemos con la matriz de nuestra 'clave'
+clave='My_Add_Round_Key'
+clave_bin = str_to_bin(clave)
+matriz_clave=str_split_dec(clave_bin,8)
+for i in range(len(matriz_clave)):
+    matriz_clave[i]= format(matriz_clave[i], 'x')
+
+matriz_clave=np.array(split_list(matriz_clave)).transpose()
+m_addRK=AddRoundKey(usr_msg,matriz_clave)
 print("Primer Matriz AddRoundKey\n",m_addRK)
 #--------------SubBytes --------------------------------
 matriz_SB=SubBytesHex(usr_msg)
 print("Matriz SubBytes\n",matriz_SB)
-#matriz_InvSB=SubBytesInvHex(matriz_SB)
-#print(matriz_InvSB)
+matriz_InvSB=SubBytesInvHex(matriz_SB)
+print("Matriz SubBytes Inversa\n",matriz_InvSB)
 
 #--------------Shift Rows --------------------------------
 matriz_n=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
@@ -254,3 +269,21 @@ matriz_shift_inverse=shift_rows_inverse(matriz_shift,matriz_n_i)
 print ("Matriz Shift-Rows\n",matriz_shift)
 
 print ("Matriz Shift-Rows-Inverse\n",matriz_shift_inverse)
+
+
+#--------------Mix colums-----------------------------------------------------------------
+
+
+
+
+
+#--------------AddRoundKey---RotWord (rotación hacia arriba ultima columna)---------------------------
+
+colum_RotWord=RotWord(matriz_clave)
+print("RotWord\n",colum_RotWord)
+
+#--------------AddRoundKey---SubBytes (se aplica subBytes a RotWord_c)----------------
+#m_prueba=(['08','0C','10','04'])
+
+colum_SB4=SubBytes_of_4B(colum_RotWord)
+print("SubBytes de 4 Bytes\n",colum_SB4)  
