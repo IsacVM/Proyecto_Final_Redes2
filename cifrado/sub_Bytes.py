@@ -1,8 +1,6 @@
-#------------------------Programa de la función Sub Bytes----------------------------------------------
-#FUENTE: https://asecuritysite.com/subjects/chapter88
-
-from itertools import islice
 import numpy as np
+from itertools import islice
+
 #-----------------------------Matriz S-Box-------------------------------------------------------------
 Sbox = [
         0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
@@ -41,7 +39,6 @@ SboxInv = [
         0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
         0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
 ]
-
 
 
 def str_to_bin(cadena):
@@ -108,7 +105,27 @@ def split_list(lista):
 
 def find_Sbox(lista):
     for i in range(len(lista)):
-        lista[i] = format(Sbox[lista[i]],'x') #Buscamo en S #Dec, y convertimos al mismo tiempo a Hexadecimal
+        lista[i] = format(Sbox[lista[i]],'x') #Buscamo en Sbox #Dec, y convertimos al mismo tiempo a Hexadecimal
+
+def find_Sbox_hexadecimal(lista):
+    no_rows,no_columns=lista.shape
+    for index_row in range(no_rows):
+        for index_columns in range(no_columns):
+            value_decimal=int(lista[index_row][index_columns],16)
+            lista[index_row][index_columns]=format(Sbox[value_decimal],'x') #Buscamo en Sbox #Dec, y convertimos al mismo tiempo a Hexadecimal
+
+
+def SubBytes_of_4B(columna):
+    #convertimos a decimal:
+    c_SB4=[0,0,0,0]
+    for i in range(len(c_SB4)):
+        c_SB4[i]=int(columna[i], 16)
+    find_Sbox(c_SB4)
+    return c_SB4
+
+def SubBytesHex_for_matriz(matriz):
+    find_Sbox_hexadecimal(matriz)
+    return matriz
 
 def SubBytesHex(usr_msg):
  
@@ -144,40 +161,11 @@ def SubBytesHex(usr_msg):
 
 
 def SubBytesInvHex(matriz_subB):
-    matriz_InvS=matriz_subB
+    matriz_InvS=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
 
     for i in range(len(matriz_InvS)):
         for j in range (len( matriz_InvS[i])):    
-            matriz_InvS[i][j] = format(SboxInv[int(matriz_InvS[i][j],base=16)],'x') #convertimos al mismo tiempo a Hexadecimal
+            matriz_InvS[i][j] = format(SboxInv[int(matriz_subB[i][j],base=16)],'x') #convertimos al mismo tiempo a Hexadecimal
 
-    return matriz_InvS
+    return np.array(matriz_InvS)
 
-def AddRoundKey(usr_msg):
-    m_inicial=SubBytesInvHex(SubBytesHex(usr_msg))
-    #Procedemos con la matriz de nuestra 'clave'
-    clave='My_Add_Round_Key'
-    clave_bin = str_to_bin(clave)
-    matriz_clave=str_split_dec(clave_bin,8)
-    for i in range(len(matriz_clave)):
-        matriz_clave[i]= format(matriz_clave[i], 'x')
-    
-    matriz_clave=np.array(split_list(matriz_clave)).transpose()
-    print("Matriz Inicial\n",m_inicial)
-    print("Matriz Clave\n",matriz_clave)
-    matriz_ARK=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
-    for j in range(len(matriz_ARK)):
-        for k in range(len(matriz_ARK[j])):    
-            matriz_ARK[j][k] =format((int(m_inicial[j][k], 16) ^ int(matriz_clave[j][k], 16)),'x')
-
-    return np.array(matriz_ARK)
-
-
-usr_msg= input("Ingresa mensaje: ")
-#--------------AddRoundKey --------------------------------
-m_addRK=AddRoundKey(usr_msg)
-print("Primer Matriz AddRoundKey\n",m_addRK)
-#--------------SubBytes --------------------------------
-matriz_SB=SubBytesHex(usr_msg)
-print("Matriz SubBytes\n",matriz_SB)
-#matriz_InvSB=SubBytesInvHex(matriz_SB)
-#print(matriz_InvSB)

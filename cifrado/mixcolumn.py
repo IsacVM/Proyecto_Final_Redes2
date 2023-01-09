@@ -178,8 +178,6 @@ def conversor_hexadecimal_a_binario(hexadecimal):
             n='0'*longi
             n_cadena=n + num_binar
             binario.append(n_cadena)
-        else:
-            print(" ")
     binario_final=str(("").join(binario))
     #("Numero en binario:",binario_final)
     #(len(binario_final))
@@ -786,9 +784,11 @@ def mix_column(m_ejemplo):
     #aux= str_int(s33)
     #print("hexa",aux)
 
-    print("#### MATRIZ RESULTADO ####")
-    for i in m_f:
-        print(i)
+    # print("#### MATRIZ RESULTADO ####")
+    # for i in m_f:
+    #     print(i)
+
+    return m_f
     
 
 if __name__ == "__main__":
