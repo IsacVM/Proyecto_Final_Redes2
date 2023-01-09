@@ -69,6 +69,30 @@ def Key_schedule(matriz_clave,number_iteration=0):
     return NewM_RK
 
 
+def AddRoundKey_ini(usr_msg,matriz_clave):
+    #m_inicial= SubBytesInvHex(SubBytesHex(usr_msg_or_matriz)) if is_for_usr_msg else usr_msg_or_matriz
+    m_inicial=SubBytesInvHex(SubBytesHex(usr_msg))
+    #print("Matriz Inicial\n",m_inicial)
+    #print("Matriz Clave\n",matriz_clave)
+    matriz_ARK=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+    for j in range(len(matriz_ARK)):
+        for k in range(len(matriz_ARK[j])):    
+            matriz_ARK[j][k] =format((int(m_inicial[j][k], 16) ^ int(matriz_clave[j][k], 16)),'x')
+    #print(matriz_ARK)
+    return np.array(matriz_ARK)
+
+
+def AddRoundKey_matriz(m_inicial,matriz_clave):
+    
+    print("Matriz Inicial de Segundo ADD\n",m_inicial)
+    print("Matriz Clave de Segundo ADD\n",matriz_clave)
+    matriz_ARK_m=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+    for j in range(len(matriz_ARK_m)):
+        for k in range(len(matriz_ARK_m[j])):    
+            matriz_ARK_m[j][k] =format((int(m_inicial[j][k], 16) ^ int(matriz_clave[j][k], 16)),'x')
+    print(matriz_ARK_m)
+    return (matriz_ARK_m)    
+
 def AddRoundKey(usr_msg_or_matriz,matriz_clave,is_for_usr_msg=True):
     m_inicial= SubBytesInvHex(SubBytesHex(usr_msg_or_matriz)) if is_for_usr_msg else usr_msg_or_matriz
     #print("Matriz Inicial\n",m_inicial)
@@ -77,5 +101,5 @@ def AddRoundKey(usr_msg_or_matriz,matriz_clave,is_for_usr_msg=True):
     for j in range(len(matriz_ARK)):
         for k in range(len(matriz_ARK[j])):    
             matriz_ARK[j][k] =format((int(m_inicial[j][k], 16) ^ int(matriz_clave[j][k], 16)),'x')
-    print(matriz_ARK)
-    return np.array(matriz_ARK)
+    #print(matriz_ARK)
+    return np.array(matriz_ARK)    

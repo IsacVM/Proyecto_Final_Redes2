@@ -13,6 +13,8 @@ from cifrado.sub_Bytes import (
 )
 from cifrado.AddRoundKey import (
     AddRoundKey,
+    AddRoundKey_ini,
+    AddRoundKey_matriz,
     Key_schedule
 )
 from cifrado.shif_rows import (
@@ -34,6 +36,7 @@ def cifrar(usr_msg,clave):
 
 
     for i in range(11):
+        #clprint("Iteración: ",i)
         #--------------SubBytes --------------------------------
         matriz_SB=SubBytesHex_for_matriz(m_addRK)
         #print("Matriz SubBytes\n",matriz_SB)
@@ -68,4 +71,4 @@ if __name__=="__main__":
 
     usr_msg= input_amount(message="Ingresa mensaje: ",max_lenght=16)
     data_cifrada=cifrar(usr_msg=usr_msg,clave='My_Add_Round_Key')
-    print("Matriz de Cifrado\n",data_cifrada)
+    
