@@ -168,4 +168,3 @@ def SubBytesInvHex(matriz_subB):
             matriz_InvS[i][j] = format(SboxInv[int(matriz_subB[i][j],base=16)],'x') #convertimos al mismo tiempo a Hexadecimal
 
     return np.array(matriz_InvS)
-

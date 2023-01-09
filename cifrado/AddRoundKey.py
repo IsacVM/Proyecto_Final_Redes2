@@ -71,11 +71,11 @@ def Key_schedule(matriz_clave,number_iteration=0):
 
 def AddRoundKey(usr_msg_or_matriz,matriz_clave,is_for_usr_msg=True):
     m_inicial= SubBytesInvHex(SubBytesHex(usr_msg_or_matriz)) if is_for_usr_msg else usr_msg_or_matriz
-    print("Matriz Inicial\n",m_inicial)
-    print("Matriz Clave\n",matriz_clave)
+    #print("Matriz Inicial\n",m_inicial)
+    #print("Matriz Clave\n",matriz_clave)
     matriz_ARK=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
     for j in range(len(matriz_ARK)):
         for k in range(len(matriz_ARK[j])):    
             matriz_ARK[j][k] =format((int(m_inicial[j][k], 16) ^ int(matriz_clave[j][k], 16)),'x')
-
+    print(matriz_ARK)
     return np.array(matriz_ARK)

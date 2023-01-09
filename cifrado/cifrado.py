@@ -1,4 +1,4 @@
-#------------------------Programa de la función Sub Bytes----------------------------------------------
+#------------------------Programa de Cifrado----------------------------------------------
 #FUENTE: https://asecuritysite.com/subjects/chapter88
 
 import numpy as np
@@ -30,13 +30,13 @@ def cifrar(usr_msg,clave):
         matriz_clave[i]= format(matriz_clave[i], 'x')
     matriz_clave=np.array(split_list(matriz_clave)).transpose()
     m_addRK=AddRoundKey(usr_msg,matriz_clave)
-    print("Primer Matriz AddRoundKey\n",m_addRK)
+    #print("Primer Matriz AddRoundKey\n",m_addRK)
 
 
     for i in range(11):
         #--------------SubBytes --------------------------------
         matriz_SB=SubBytesHex_for_matriz(m_addRK)
-        print("Matriz SubBytes\n",matriz_SB)
+        #print("Matriz SubBytes\n",matriz_SB)
         # matriz_InvSB=SubBytesInvHex(matriz_SB)
         # print("Matriz SubBytes Inversa\n",matriz_InvSB)
 
@@ -45,22 +45,21 @@ def cifrar(usr_msg,clave):
         matriz_n_i=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
         matriz_shift=shift_rows(matriz_SB,matriz_n)
         # matriz_shift_inverse=shift_rows_inverse(matriz_shift,matriz_n_i)
-        print ("Matriz Shift-Rows\n",matriz_shift)
+        #print ("Matriz Shift-Rows\n",matriz_shift)
         #print ("Matriz Shift-Rows-Inverse\n",matriz_shift_inverse)
 
         #--------------Mix colums-----------------------------------------------------------------
         if i!=10:
             mix_column(matriz_shift)
         
-        #--------------KEY SCHEDULE----------------------------------------------------------------
-        print('KEY SCHEDULE')
+        #--------------KEY SCHEDULE--& AddRoundKey--------------------------------------------------------------
+        #print('KEY SCHEDULE')
         i= 0 if i==10 else i
         nueva_RK=Key_schedule(matriz_clave,number_iteration=i)
+        #matriz de retorno
         m_addRK=AddRoundKey(nueva_RK,matriz_clave,is_for_usr_msg=False)
 
-
-    print("Nueva matriz RoundKey\n",nueva_RK)
-    return nueva_RK
+    return m_addRK
 
 
 #-----------------------------main---------------------------------------------------
@@ -69,4 +68,4 @@ if __name__=="__main__":
 
     usr_msg= input_amount(message="Ingresa mensaje: ",max_lenght=16)
     data_cifrada=cifrar(usr_msg=usr_msg,clave='My_Add_Round_Key')
-    print(data_cifrada)
+    print("Matriz de Cifrado\n",data_cifrada)

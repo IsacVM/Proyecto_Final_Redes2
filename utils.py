@@ -1,16 +1,9 @@
-import curses 
+#import curses 
 
 def input_amount(message,max_lenght): 
-    try: 
-        stdscr = curses.initscr() 
-        stdscr.clear() 
-        stdscr.addstr(message) 
-        amt = stdscr.getstr(1,0,max_lenght) # or use getkey() as showed above.
-    except: 
-        raise 
-    finally: 
-        curses.endwin() # to restore the terminal to its original operating mode.
-    return amt.decode()
+  
+    x=input(message)[:max_lenght]
+    return x
 
 
 if __name__ == "__main__":
