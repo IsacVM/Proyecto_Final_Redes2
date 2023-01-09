@@ -3,6 +3,7 @@
 
 from itertools import islice
 import numpy as np
+from wpamixc import mix_column
 
 AES_128_ROUNDS = 10
 #-----------------------------Matriz S-Box-------------------------------------------------------------
@@ -43,7 +44,6 @@ SboxInv = [
         0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
         0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d
 ]
-
 
 
 def str_to_bin(cadena):
@@ -242,6 +242,69 @@ def RotWord(matriz_clave):
     last_colum=matriz_clave.transpose()[3]
     return np.roll(last_colum,-1)
 
+def Key_schedule(matriz_clave):
+    print('KEY SCHEDULE\n')
+
+    colum_RotWord=RotWord(matriz_clave)
+    #print("RotWord\n",colum_RotWord)
+
+    #--------------AddRoundKey---SubBytes (se aplica subBytes a RotWord_c)----------------
+    #m_prueba=(['08','0C','10','04'])
+
+    colum_SB4=SubBytes_of_4B(colum_RotWord)
+    #print("SubBytes de 4 Bytes\n",colum_SB4)  
+
+    #--------------AddRoundKey---XOR and Rcon table-----
+    #----Se hace XOR entre colum_SB4 con la segunda columna de matriz clave y con primara columna de tabla Rcon
+
+    Rcon_table=[['01','00','00','00'],['02','00','00','00'],['04','00','00','00'],['08','00','00','00'],['10','00','00','00'],['20','00','00','00'],['40','00','00','00'],['80','00','00','00'],['1b','00','00','00'],['36','00','00','00']]
+    colum_Rcon=Rcon_table[0]# el Round 1 debe tener el indice '0'
+    #print(colum_Rcon)
+
+    #Rcon 1st colum:
+    New_RK=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+    #colum_SB4_p=['30','FE','CA','F2']
+    colum1_mClave=matriz_clave.transpose()[0]
+    print(colum1_mClave)
+    for i in range(len(New_RK)):
+        New_RK[0][i]=format((int(colum_SB4[i], 16) ^ int(colum1_mClave[i], 16)^ int(colum_Rcon[i], 16)),'x')
+
+    primera_c=np.array(New_RK)[0]
+    #print("1ra columna New_ARK\n",primera_c)
+
+    #Rcon 2sd colum:
+    colum2_mClave=matriz_clave.transpose()[1]
+    print(colum2_mClave)
+    for i in range(len(New_RK)):
+        New_RK[1][i]=format((int(primera_c[i], 16) ^ int(colum2_mClave[i], 16)),'x')
+        
+    segunda_c=np.array(New_RK)[1]   
+    #print("2da columna New_ARK\n",segunda_c)
+
+    #Rcon 3rd colum:
+    colum3_mClave=matriz_clave.transpose()[2]
+    print(colum3_mClave)
+    for i in range(len(New_RK)):
+        New_RK[2][i]=format((int(segunda_c[i], 16) ^ int(colum3_mClave[i], 16)),'x')
+
+    tercera_c=np.array(New_RK)[2]   
+    #print("3ra columna New_ARK\n",tercera_c)
+
+    #Rcon 4th colum:
+    colum4_mClave=matriz_clave.transpose()[3]
+    print(colum4_mClave)
+    for i in range(len(New_RK)):
+        New_RK[3][i]=format((int(tercera_c[i], 16) ^ int(colum4_mClave[i], 16)),'x')
+
+    cuarta_c=np.array(New_RK)[3]   
+    #print("4ta columna New_ARK\n",cuarta_c)
+
+    #Nueva matriz RoundKey:
+    NewM_RK=np.array(New_RK).transpose()
+    return New_RK
+
+
+#-----------------------------main---------------------------------------------------
 
 usr_msg= input("Ingresa mensaje: ")
 #--------------AddRoundKey --------------------------------
@@ -270,73 +333,25 @@ matriz_shift_inverse=shift_rows_inverse(matriz_shift,matriz_n_i)
 
 print ("Matriz Shift-Rows\n",matriz_shift)
 
-print ("Matriz Shift-Rows-Inverse\n",matriz_shift_inverse)
+#print ("Matriz Shift-Rows-Inverse\n",matriz_shift_inverse)
 
 
 #--------------Mix colums-----------------------------------------------------------------
 
-
+mix_column(matriz_shift)
 
 #--------------KEY SCHEDULE----------------------------------------------------------------
 
 #--------------AddRoundKey---RotWord (rotación hacia arriba ultima columna)---------------------------
 
-colum_RotWord=RotWord(matriz_clave)
-print("RotWord\n",colum_RotWord)
 
-#--------------AddRoundKey---SubBytes (se aplica subBytes a RotWord_c)----------------
-#m_prueba=(['08','0C','10','04'])
 
-colum_SB4=SubBytes_of_4B(colum_RotWord)
-print("SubBytes de 4 Bytes\n",colum_SB4)  
+nueva_RK=Key_schedule(matriz_clave)
+print("Nueva matriz RoundKey\n",nueva_RK)
 
-#--------------AddRoundKey---XOR and Rcon table-----
-#----Se hace XOR entre colum_SB4 con la segunda columna de matriz clave y con primara columna de tabla Rcon
-
-Rcon_table=[['01','00','00','00'],['02','00','00','00'],['04','00','00','00'],['08','00','00','00'],['10','00','00','00'],['20','00','00','00'],['40','00','00','00'],['80','00','00','00'],['1b','00','00','00'],['36','00','00','00']]
-
-#Rcon 1st colum:
-New_RK=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
-colum_SB4_p=['30','FE','CA','F2']
-colum1_mClave=['01','05','09','0D']
-colum_Rcon=Rcon_table[1]# el Round 1 debe tener el indice '0'
-print(colum_Rcon)
-for i in range(len(New_RK)):
-    New_RK[0][i]=format((int(colum_SB4_p[i], 16) ^ int(colum1_mClave[i], 16)^ int(colum_Rcon[i], 16)),'x')
-
-primera_c=np.array(New_RK)[0]
-#print("1ra columna New_ARK\n",primera_c)
-#Rcon 2sd colum:
-colum2_mClave=['02','06','0A','0E']
-for i in range(len(New_RK)):
-    New_RK[1][i]=format((int(primera_c[i], 16) ^ int(colum2_mClave[i], 16)),'x')
-
-segunda_c=np.array(New_RK)[1]   
-#print("2da columna New_ARK\n",segunda_c)
-
-#Rcon 3rd colum:
-colum3_mClave=['03','07','0B','0F']
-for i in range(len(New_RK)):
-    New_RK[2][i]=format((int(segunda_c[i], 16) ^ int(colum3_mClave[i], 16)),'x')
-
-tercera_c=np.array(New_RK)[2]   
-#print("3ra columna New_ARK\n",tercera_c)
-
-#Rcon 4th colum:
-
-colum4_mClave=['04','08','0C','10']
-for i in range(len(New_RK)):
-    New_RK[3][i]=format((int(tercera_c[i], 16) ^ int(colum4_mClave[i], 16)),'x')
-
-cuarta_c=np.array(New_RK)[3]   
-#print("4ta columna New_ARK\n",cuarta_c)
-
-#Nueva matriz RoundKey:
-NewM_RK=np.array(New_RK).transpose()
-print("Nueva matriz RoundKey\n",NewM_RK)
 #-------------------------------------------------------------------
 #def main():
-#    print("Testing the AES key generation")
+#    print("Comienza cifrado")
   
    
 #-------------------------------------------------------------------
