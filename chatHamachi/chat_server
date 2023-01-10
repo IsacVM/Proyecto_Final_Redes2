@@ -1,0 +1,34 @@
+from socket import *
+
+
+class ChatServer:
+    def __init__(self, p=0, ip="0.0.0.0"):
+        self.socketConexion = None
+        self.mr = None
+        self.addr = None
+        self.p = p
+        self.ip = ip
+        self.socketServidor = socket(AF_INET, SOCK_STREAM)
+        self.socketServidor.bind((self.ip, self.p))
+        self.socketServidor.listen()
+
+    def enviar(self):
+        self.socketConexion.send(input().encode())
+
+    def recibir(self, socketServidor):
+        self.socketServidor = socketServidor
+        while True:
+            self.socketConexion, self.addr = self.socketServidor.accept()
+            print("-- Conectado con un cliente ", self.addr, " --")
+            while True:
+                self.mr = self.socketConexion.recv(4096).decode()
+                print(self.mr)
+                if self.mr == 'adios' or self.mr == 'Adios':
+                    break
+                self.enviar()
+            print("-- Desconectado el cliente ", self.addr, " --")
+            self.socketConexion.close()
+
+
+guillermo = ChatServer(9099, "25.51.250.55")
+guillermo.recibir(guillermo.socketServidor)

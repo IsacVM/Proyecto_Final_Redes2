@@ -1,0 +1,29 @@
+from socket import *
+
+
+class ChatClient:
+    def __init__(self, p=0, ip="0.0.0.0"):
+        self.me = None
+        self.r = None
+        self.p = p
+        self.ip = ip
+        self.socketCliente = socket(AF_INET, SOCK_STREAM)
+        self.socketCliente.connect((self.ip, self.p))
+
+    def enviar(self, me="Hola"):
+        self.me = me
+        if me != 'adios' or me != 'Adios':
+            self.socketCliente.send(self.me.encode())
+            self.recibir()
+        else:
+            self.socketCliente.send(me.encode())
+            self.socketCliente.close()
+
+    def recibir(self):
+        self.r = self.socketCliente.recv(4096).decode()
+        print(self.r)
+        self.enviar(input())
+
+
+isac = ChatClient(9099, "")
+isac.enviar(input())
