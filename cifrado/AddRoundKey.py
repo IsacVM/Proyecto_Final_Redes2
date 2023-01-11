@@ -23,7 +23,7 @@ def Key_schedule(matriz_clave,number_iteration=0):
     #----Se hace XOR entre colum_SB4 con la segunda columna de matriz clave y con primara columna de tabla Rcon
 
     Rcon_table=[['01','00','00','00'],['02','00','00','00'],['04','00','00','00'],['08','00','00','00'],['10','00','00','00'],['20','00','00','00'],['40','00','00','00'],['80','00','00','00'],['1b','00','00','00'],['36','00','00','00']]
-    colum_Rcon=Rcon_table[number_iteration]# el Round 1 debe tener el indice '0'
+    colum_Rcon=Rcon_table[number_iteration-1]# el Round 1 debe tener el indice '0'
     #print(colum_Rcon)
 
     #Rcon 1st colum:

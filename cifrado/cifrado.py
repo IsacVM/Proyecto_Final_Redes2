@@ -31,12 +31,12 @@ def cifrar(usr_msg,clave):
     for i in range(len(matriz_clave)):
         matriz_clave[i]= format(matriz_clave[i], 'x')
     matriz_clave=np.array(split_list(matriz_clave)).transpose()
-    m_addRK=AddRoundKey(usr_msg,matriz_clave)
+    m_addRK=AddRoundKey(usr_msg,matriz_clave,is_for_usr_msg=True)
     #print("Primer Matriz AddRoundKey\n",m_addRK)
 
 
-    for i in range(11):
-        #clprint("Iteración: ",i)
+    for i in range(1,11):
+        #print("Iteración: ",i)
         #--------------SubBytes --------------------------------
         matriz_SB=SubBytesHex_for_matriz(m_addRK)
         #print("Matriz SubBytes\n",matriz_SB)
@@ -52,15 +52,32 @@ def cifrar(usr_msg,clave):
         #print ("Matriz Shift-Rows-Inverse\n",matriz_shift_inverse)
 
         #--------------Mix colums-----------------------------------------------------------------
-        if i!=10:
-            m_Mix=mix_column(matriz_shift)
+        #if i!=10:
+        m_Mix=mix_column(matriz_shift)
         
         #--------------KEY SCHEDULE--& AddRoundKey--------------------------------------------------------------
         #print('KEY SCHEDULE')
-        i= 0 if i==10 else i
+        #i= 0 if i==10 else i
         nueva_RK=Key_schedule(matriz_clave,number_iteration=i)
         #matriz de retorno
         m_addRK=AddRoundKey(m_Mix,nueva_RK,is_for_usr_msg=False)
+
+    #Ronda Final:
+    #--------------SubBytes --------------------------------
+    matriz_SB=SubBytesHex_for_matriz(m_addRK)
+    #--------------Shift Rows --------------------------------
+    matriz_n=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+    matriz_n_i=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+    matriz_shift=shift_rows(matriz_SB,matriz_n)
+    #--------------Mix colums-----------------------------------------------------------------
+    #if i!=10:
+    m_Mix=mix_column(matriz_shift)
+    #--------------KEY SCHEDULE--& AddRoundKey--------------------------------------------------------------
+    #print('KEY SCHEDULE')
+    #i= 0 if i==10 else i
+    nueva_RK=Key_schedule(matriz_clave,number_iteration=i)
+    #matriz de retorno
+    m_addRK=AddRoundKey(m_Mix,nueva_RK,is_for_usr_msg=False)
 
     return m_addRK
 
