@@ -41,23 +41,23 @@ def des_cifrar(data_cifrada):
         matriz_n=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
         matriz_n_i=[[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
         #matriz_shift=shift_rows(matriz_SB,matriz_n)
-        matriz_shift_inverse=shift_rows_inverse(matriz_InvSB,matriz_n_i)
+        matriz_shift_inverse=shift_rows_inverse(m_addRK,matriz_n_i)
         #print ("Matriz Shift-Rows-Inverse\n",matriz_shift_inverse)
 
         #--------------Inv SubBytes --------------------------------
-        matriz_InvSB=SubBytesInvHex(m_addRK)
+        matriz_InvSB=SubBytesInvHex(matriz_shift_inverse)
         #print("Matriz SubBytes Inversa\n",matriz_InvSB)
 
         #--------------Inv Mix colums-----------------------------------------------------------------
         if i!=10:
-            Inv_mix_column(matriz_shift_inverse)
+            m_InvMc=Inv_mix_column(matriz_InvSB)
         
         #--------------KEY SCHEDULE--& AddRoundKey--------------------------------------------------------------
         #print('KEY SCHEDULE')
         i= 0 if i==10 else i
         nueva_RK=Key_schedule(matriz_clave,number_iteration=i)
         #matriz de retorno
-        m_addRK=AddRoundKey(nueva_RK,matriz_clave,is_for_usr_msg=False)
+        m_addRK=AddRoundKey(m_InvMc,nueva_RK,is_for_usr_msg=False)
 
     return m_addRK
 
