@@ -15,6 +15,8 @@ from enrutamiento.constantes import (
 from utils import PrintTxt
 
 
+
+
 def get_index_vecino_por_nombre(nombre_vecino):
     return int(nombre_vecino[-1])
 
@@ -31,7 +33,7 @@ if __name__=='__main__':
         archivo_enrutamiento=PrintTxt(f"{DISPOSITIVO_ID}_enrutamiento.txt")
         archivo_flujo_datos=PrintTxt(f"{DISPOSITIVO_ID}_data.txt")
         archivo_enrutamiento.println(f"ID DE DISPOSITIVO: '{DISPOSITIVO_ID}'")
-        vector_renglon_pesos=DICT_DATOS_PARTICULARES_POR_DISPOSITIVO.get(DISPOSITIVO_ID).get('VECTOR_RENGLON_PESOS')[0]
+        vector_renglon_pesos=DICT_DATOS_PARTICULARES_POR_DISPOSITIVO.get(DISPOSITIVO_ID).get('VECTOR_RENGLON_PESOS')[1]
         nombre_vecinos=DICT_DATOS_PARTICULARES_POR_DISPOSITIVO.get(DISPOSITIVO_ID).get('NOMBRES_VECINOS')
         archivo_enrutamiento.println(f"VECTOR RENGLON:{vector_renglon_pesos}")
         archivo_enrutamiento.println(f"VECINOS:{nombre_vecinos}")

@@ -9,21 +9,18 @@ from enrutamiento import convenciones
 #Definición de infinito, infinito es de tipo FLOAT
 INFINITO=math.inf
 
-CANTIDAD_DISPOSITIVOS=4
 
 # PUERTOS DISPONILES... 1,024 to 49,151
 DICT_TODOS_LOS_NODOS_RED={
-    'D~1':("192.168.1.208",30000,30031),
-    'D~2':("192.168.1.208",30100,30101),
-    'D~3':("192.168.1.208",30034,30035),
-    'D~4':("192.168.1.208",1030,1031)
+    'ISAC~1':("192.168.1.208",30000,30031),
+    'DAFNE~2':("192.168.1.208",30100,30101),
+    'ALAN~3':("192.168.1.208",30034,30035)
 }
 
 DICT_VECINOS={
-  'D~1':['D~2'],
-  'D~2':['D~1','D~3'],
-  'D~3':['D~2','D~4'],
-  'D~4':['D~3']
+  'ISAC~1':['DAFNE~2','ALAN~3'],
+  'DAFNE~2':['ISAC~1'],
+  'ALAN~3':['ISAC~1'],
 }
 
 max_value=15
