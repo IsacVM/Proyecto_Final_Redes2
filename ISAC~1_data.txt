@@ -1,0 +1,32 @@
+***************************************
+    MENSAJE ID: '4e8dea15-2d78-454b-8d5c-3a204493cae5' 
+***************************************
+{
+   "id": "4e8dea15-2d78-454b-8d5c-3a204493cae5",
+   "origen": "DAFNE~2",
+   "destino": "ALAN~3",
+   "anterior": "DAFNE~2",
+   "siguiente": "ISAC~1",
+   "historial_ruta": [
+      "DAFNE~2"
+   ],
+   "distancia_esperada": 21.0,
+   "mensaje": "HOLAAA ALAN"
+}
+
+
+Mensaje que se enviara:
+{
+   "id": "4e8dea15-2d78-454b-8d5c-3a204493cae5",
+   "origen": "DAFNE~2",
+   "destino": "ALAN~3",
+   "anterior": "ISAC~1",
+   "siguiente": "ALAN~3",
+   "historial_ruta": [
+      "DAFNE~2",
+      "ISAC~1"
+   ],
+   "distancia_esperada": 21.0,
+   "mensaje": "HOLAAA ALAN"
+}
+Exito al mandar mensaje
