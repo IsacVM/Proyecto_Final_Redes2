@@ -53,14 +53,14 @@ def cifrar(usr_msg,clave):
 
         #--------------Mix colums-----------------------------------------------------------------
         if i!=10:
-            mix_column(matriz_shift)
+            m_Mix=mix_column(matriz_shift)
         
         #--------------KEY SCHEDULE--& AddRoundKey--------------------------------------------------------------
         #print('KEY SCHEDULE')
         i= 0 if i==10 else i
         nueva_RK=Key_schedule(matriz_clave,number_iteration=i)
         #matriz de retorno
-        m_addRK=AddRoundKey(nueva_RK,matriz_clave,is_for_usr_msg=False)
+        m_addRK=AddRoundKey(m_Mix,nueva_RK,is_for_usr_msg=False)
 
     return m_addRK
 
