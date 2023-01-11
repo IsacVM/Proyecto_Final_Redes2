@@ -6,14 +6,15 @@ from utils import (
     target_server_enrutamiento,
     target_server_flujo_mensajes,
     target_mandar_datos,
-    target_chat
+    target_chat,
+    target_revisar_conexion_vecino
 )
 from enrutamiento.constantes import (
     DICT_TODOS_LOS_NODOS_RED,
     DICT_DATOS_PARTICULARES_POR_DISPOSITIVO
 )
 from utils import PrintTxt
-
+from enrutamiento import convenciones
 
 
 
@@ -65,6 +66,14 @@ if __name__=='__main__':
                     args=(DISPOSITIVO_ID,nombre_vecino,ip_nodo,puerto_enrutamiento)
                 )
                 hilo_recibe_flujo_mensaje.start()
+                index_vecino=convenciones.get_index(nombre_vecino)
+
+
+                hilo_checa=threading.Thread(
+                    target=target_revisar_conexion_vecino,
+                    args=(DISPOSITIVO_ID,archivo_enrutamiento,index_vecino)
+                )
+                hilo_checa.start()
 
             hilo_chat = threading.Thread(
                 target=target_chat,
@@ -73,38 +82,6 @@ if __name__=='__main__':
             hilo_chat.start()
         else:
             print("NODO NO EXISTENTE DENTRO DE LA RED LOCAL...")
-
-
-        # print(ROUTER_A_VECINOS)
-
-
-
-
-        # index=0
-        # for interfaz_red,mac_address in ROUTER_A_TUPLA_INTERFAZ_Y_MAC_ADDRESS_VECINOS:
-        #     pass
-
-        
-        #   hilo_manda_vector_distancia = threading.Thread(
-        #       target=target_mandar_datos,
-        #       args=(REGISTRO_MENSAJES_ROUTERS,mac_address,interfaz_red,VECTOR_RENGLON_PESOS)
-        #   )
-        #   hilo_manda_vector_distancia.start()
-
-
-        #   hilo_recibe_vector_distancia = threading.Thread(
-        #       target=target_recibir_datos,
-        #       args=(REGISTRO_MENSAJES_ROUTERS,mac_address,interfaz_red,VECTOR_RENGLON_PESOS)
-        #   )
-        #   hilo_recibe_vector_distancia.start()
-
-        #   hilo_checa=threading.Thread(
-        #       target=target_revisar_conexion_vecino,
-        #       args=(REGISTRO_MENSAJES_ROUTERS,VECTOR_RENGLON_PESOS,ROUTER_A_VECINOS[index])
-        #   )
-        #   hilo_checa.start()
-        #   index+=1
-
     else:
         print("El ID del dispositivo que ingresaste no existe")
 

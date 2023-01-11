@@ -1,5 +1,5 @@
 
-SIMBOLO_SEPARADOR="~"
+SIMBOLO_SEPARADOR="-"
 
 def get_index(id_nodo):
     nombre,index=id_nodo.split(SIMBOLO_SEPARADOR)

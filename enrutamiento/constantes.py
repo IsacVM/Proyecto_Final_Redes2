@@ -10,17 +10,18 @@ from enrutamiento import convenciones
 INFINITO=math.inf
 
 
+
 # PUERTOS DISPONILES... 1,024 to 49,151
 DICT_TODOS_LOS_NODOS_RED={
-    'ISAC~1':("25.51.250.55",30000,30031),
-    'DAFNE~2':("25.6.211.129",30100,30101),
-    'ALAN~3':("25.43.227.248",30034,30035)
+    'ISAC-1':("192.168.0.123",30000,30031),
+    'DAFNE-2':("192.168.0.123",30100,30101),
+    'ALAN-3':("192.168.0.123",30034,30035)
 }
 
 DICT_VECINOS={
-  'ISAC~1':['DAFNE~2','ALAN~3'],
-  'DAFNE~2':['ISAC~1'],
-  'ALAN~3':['ISAC~1'],
+  'ISAC-1':['DAFNE-2','ALAN-3'],
+  'DAFNE-2':['ISAC-1'],
+  'ALAN-3':['ISAC-1'],
 }
 
 max_value=15

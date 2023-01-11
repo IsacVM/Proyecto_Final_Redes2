@@ -1,6 +1,7 @@
 import copy
 import socket
 import pickle
+
 from enrutamiento.vector_distancia import (
   actualizar_pesos,
   autor_index
@@ -12,6 +13,7 @@ from enrutamiento.constantes import (
   DICT_DATOS_PARTICULARES_POR_DISPOSITIVO,
   DICT_TODOS_LOS_NODOS_RED
 )
+from cifrado.cifrado import cifrar
 from enrutamiento import convenciones
 
 import time
@@ -48,7 +50,7 @@ def input_amount(message,max_lenght):
     x=input(message)[:max_lenght]
     return x
 
-def target_revisar_conexion_vecino(DISPOSITIVO_ID,indice_vecino):
+def target_revisar_conexion_vecino(DISPOSITIVO_ID,archivo_enrutamiento,indice_vecino):
   REGISTRO_MENSAJES_ROUTERS=DICT_DATOS_PARTICULARES_POR_DISPOSITIVO.get(DISPOSITIVO_ID).get("REGISTRO_MENSAJES_ROUTERS")
   vector_distancia=DICT_DATOS_PARTICULARES_POR_DISPOSITIVO.get(DISPOSITIVO_ID).get("VECTOR_RENGLON_PESOS")[1]
   vector_distancia_nombres=DICT_DATOS_PARTICULARES_POR_DISPOSITIVO.get(DISPOSITIVO_ID).get("VECTOR_RENGLON_PESOS")[0]
@@ -69,7 +71,7 @@ def target_revisar_conexion_vecino(DISPOSITIVO_ID,indice_vecino):
       vector_infinito=[INFINITO]*len(vector_distancia)
       vector_infinito[indice_vecino]=0
 
-      print("**************************************")
+      # print("**************************************")
       tabla=mostrar_tabla(
         lista_ids_dispositivos=list(DICT_TODOS_LOS_NODOS_RED.keys()),
         lista_old=vector_distancia_old,
@@ -78,6 +80,7 @@ def target_revisar_conexion_vecino(DISPOSITIVO_ID,indice_vecino):
         lista_actual=vector_distancia,
         lista_nombres_vecinos_actual=vector_distancia_nombres
       )
+      archivo_enrutamiento.println(str(tabla))
 
 
 def target_server_enrutamiento(DISPOSITIVO_ID,archivo_enrutamiento,ip_server,port_server):
@@ -163,7 +166,12 @@ def target_chat(DISPOSITIVO_ID):
         if distancia_destino!=INFINITO:
           id_dispositivo_siguiente=DICT_DATOS_PARTICULARES_POR_DISPOSITIVO[DISPOSITIVO_ID]['VECTOR_RENGLON_PESOS'][0][index_destino]
           ip_siguiente,puerto_enrutamiento,puerto_flujo_mensajes=DICT_TODOS_LOS_NODOS_RED[id_dispositivo_siguiente]
-          historial_ruta=[DISPOSITIVO_ID]
+          historial_ruta=[DISPOSITIVO_ID] 
+          try:
+            mensaje_cifrado=cifrar(str(mensaje),"My_Add_Round_Key")
+            mensaje_cifrado=str(mensaje_cifrado)
+          except:
+            mensaje_cifrado="error al cifrar data"
           dict_datos_mandar={
             'id':str(uuid.uuid4()),
             'origen':DISPOSITIVO_ID,
@@ -172,7 +180,8 @@ def target_chat(DISPOSITIVO_ID):
             'siguiente':id_dispositivo_siguiente,
             'historial_ruta':historial_ruta,
             'distancia_esperada':distancia_destino,
-            'mensaje':mensaje
+            'mensaje':mensaje,
+            'mensaje_cifrado':mensaje_cifrado
           }
           my_socket=socket.socket(
               family=socket.AF_INET,      # socket.AF_INET = Internet protocol IPv4
